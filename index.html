@@ -219,7 +219,6 @@ function toggleMockSpeech() {
 
 // TOTAL MULTI-MODAL COMPETENCY EVALUATOR
 function evaluateCompleteMockTest() {
-    // Structural screening markers
     let lAttempted = false;
     let lScore = 0;
     for(let i=1; i<=5; i++) {
@@ -248,79 +247,62 @@ function evaluateCompleteMockTest() {
     let speakWords = speakText ? speakText.split(/\s+/).length : 0;
     let sAttempted = speakWords > 0;
 
-    // Reject evaluation processing if all vectors are blank
+    // Reject processing if all assessment nodes are empty
     if (!lAttempted && !rAttempted && !wAttempted && !sAttempted) {
         alert("Action Denied: You cannot evaluate an empty matrix. Please complete at least one section to see your results.");
         return;
     }
 
-    // Dynamic array tracker for calculating average
-    let activeModuleBands = [];
-
-    // 1. Listening Processing
-    let scoreListenDisplay = "N/A (Skipped)";
+    // Fixed Unified Structure: Skipped components receive 0.0 band values
+    let lBand = 0.0;
     if(lAttempted) {
-        let lBand = 4.0 + (lScore * 1.0);
-        activeModuleBands.push(lBand);
-        scoreListenDisplay = lBand.toFixed(1);
+        lBand = 4.0 + (lScore * 1.0);
     }
 
-    // 2. Reading Processing
-    let scoreReadDisplay = "N/A (Skipped)";
+    let rBand = 0.0;
     if(rAttempted) {
-        let rBand = 4.0 + (rScore * 1.0);
-        activeModuleBands.push(rBand);
-        scoreReadDisplay = rBand.toFixed(1);
+        rBand = 4.0 + (rScore * 1.0);
     }
 
-    // 3. Writing Advanced Syntax Estimator
-    let scoreWriteDisplay = "N/A (Skipped)";
+    let wBand = 0.0;
     if(wAttempted) {
         let advancedTokens = ["mitigation", "unprecedented", "infrastructure", "expenditures", "jurisdictions", "vulnerabilities", "consequently", "nevertheless", "subordination"];
         let tokenHits = advancedTokens.filter(tok => essayText.toLowerCase().includes(tok)).length;
         
-        let wBand = 4.5;
+        wBand = 4.5;
         if(essayWords > 150) wBand = 5.5;
         if(essayWords >= 250) wBand = 6.5;
         if(essayWords >= 250 && tokenHits >= 3) wBand = 7.5;
         if(essayWords >= 250 && tokenHits >= 5) wBand = 8.5;
         if(essayWords >= 280 && tokenHits >= 7) wBand = 9.0;
-        
-        activeModuleBands.push(wBand);
-        scoreWriteDisplay = wBand.toFixed(1);
     }
 
-    // 4. Speaking Advanced Delivery Estimator
-    let scoreSpeakDisplay = "N/A (Skipped)";
+    let sBand = 0.0;
     if(sAttempted) {
-        let sBand = 5.0;
+        sBand = 5.0;
         if(speakWords > 20) sBand = 6.0;
         if(speakWords > 40) sBand = 7.5;
         if(speakWords > 60) sBand = 8.5;
         if(speakText.toLowerCase().includes("infrastructure") || speakText.toLowerCase().includes("governance")) sBand = 9.0;
-        
-        activeModuleBands.push(sBand);
-        scoreSpeakDisplay = sBand.toFixed(1);
     }
 
-    // Output Mapping to DOM Elements
+    // Map calculated module scores back to DOM elements
     document.getElementById('outName').innerText = document.getElementById('nameInput').value.trim() || "Candidate Unknown";
     document.getElementById('outID').innerText = document.getElementById('idInput').value.trim() || "Unspecified";
     
-    document.getElementById('scoreListen').innerText = scoreListenDisplay;
-    document.getElementById('scoreRead').innerText = scoreReadDisplay;
-    document.getElementById('scoreWrite').innerText = scoreWriteDisplay;
-    document.getElementById('scoreSpeak').innerText = scoreSpeakDisplay;
+    document.getElementById('scoreListen').innerText = lBand.toFixed(1);
+    document.getElementById('scoreRead').innerText = rBand.toFixed(1);
+    document.getElementById('scoreWrite').innerText = wBand.toFixed(1);
+    document.getElementById('scoreSpeak').innerText = sBand.toFixed(1);
     
-    // Dynamic Proportional Score Math
-    let totalSum = activeModuleBands.reduce((sum, score) => sum + score, 0);
-    let overallCalc = totalSum / activeModuleBands.length;
+    // STRICT SYNCHRONIZATION: Cumulative matrix total divided explicitly by 4 unity slots
+    let overallCalc = (lBand + rBand + wBand + sBand) / 4;
     
-    // Exact IELTS 0.5 Rounding Protocol
+    // Official IELTS rounding protocol to nearest 0.5 increment
     let roundedOverall = Math.round(overallCalc * 2) / 2;
     document.getElementById('scoreOverall').innerText = roundedOverall.toFixed(1);
 
-    // Render Dashboard Canvas View gracefully
+    // Render Canvas Dashboard
     document.getElementById('resultsDashboard').style.display = "block";
     document.getElementById('resultsDashboard').scrollIntoView({ behavior: 'smooth' });
 }
