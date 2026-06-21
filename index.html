@@ -50,7 +50,6 @@
             </div>
         </div>
 
-        <!-- LISTENING MODULE -->
         <h2>Module 1: Listening (Section 4 Academic Dictation)</h2>
         <div class="instruction-box">
             <strong>Competency Tested:</strong> Audiological tracking, signpost phrase isolation, and high-precision orthography under sustained cognitive load. Complete the notes below using <strong>NO MORE THAN TWO WORDS</strong>.
@@ -68,7 +67,6 @@
             </ul>
         </div>
 
-        <!-- READING MODULE -->
         <h2>Module 2: Reading (Academic Context Alignment)</h2>
         <div class="instruction-box">
             <strong>Competency Tested:</strong> Rapid skimming/scanning, contextual paraphrase decoding, and True/False/Not Given analytical verification.
@@ -99,7 +97,6 @@
             </div>
         </div>
 
-        <!-- WRITING MODULE -->
         <h2>Module 3: Writing (Task 2 Discursive Response)</h2>
         <div class="instruction-box">
             <strong>Competency Tested:</strong> Lexical variety, cohesive paragraph flow, structural subordination, and argumentative stance consistency. Write at least 250 words.
@@ -110,7 +107,6 @@
             <div style="text-align: right; font-size: 0.9em; color: #666;" id="wordCountLabel">Word Count: 0</div>
         </div>
 
-        <!-- SPEAKING MODULE -->
         <h2>Module 4: Speaking (Interactive Part 3 Discussion)</h2>
         <div class="instruction-box">
             <strong>Competency Tested:</strong> Spontaneous syntax composition, structural inversion usage, and advanced nominalization indices.
@@ -121,11 +117,9 @@
             <textarea id="speakingArea" rows="5" placeholder="Your live vocalized articulation stream will transcribe automatically here..." style="margin-top:10px;"></textarea>
         </div>
 
-        <!-- SUBMIT & PROCESS -->
         <button onclick="evaluateCompleteMockTest()" style="background: #27ae60; font-size: 1.2em; margin-top: 30px; margin-bottom: 5px;">Submit Complete Examination for Competency Processing</button>
     </div>
 
-    <!-- REPORT CARD & DIAGNOSTIC DASHBOARD -->
     <div id="resultsDashboard">
         <h2 style="margin-top:0; background:none; padding:0; border:none; color:#27ae60; text-align:center;">OFFICIAL SIMULATION COMPETENCY PROFILE</h2>
         <p><strong>Candidate:</strong> <span id="outName" style="font-weight:bold;"></span> | <strong>ID:</strong> <span id="outID"></span></p>
@@ -225,57 +219,108 @@ function toggleMockSpeech() {
 
 // TOTAL MULTI-MODAL COMPETENCY EVALUATOR
 function evaluateCompleteMockTest() {
-    // 1. Listening Processing
+    // Structural screening markers
+    let lAttempted = false;
     let lScore = 0;
     for(let i=1; i<=5; i++) {
-        if(document.getElementById('l'+i).value.trim().toLowerCase() === listeningKeys[i-1]) lScore++;
+        let val = document.getElementById('l'+i).value.trim();
+        if(val !== "") {
+            lAttempted = true;
+            if(val.toLowerCase() === listeningKeys[i-1]) lScore++;
+        }
     }
-    let lBand = 4.0 + (lScore * 1.0); // Calibrated mapping range
 
-    // 2. Reading Processing
+    let rAttempted = false;
     let rScore = 0;
     for(let j=1; j<=5; j++) {
-        if(document.getElementById('r'+j).value === readingKeys[j-1]) rScore++;
+        let val = document.getElementById('r'+j).value;
+        if(val !== "") {
+            rAttempted = true;
+            if(val === readingKeys[j-1]) rScore++;
+        }
     }
-    let rBand = 4.0 + (rScore * 1.0);
 
-    // 3. Writing Advanced Syntax Estimator
     let essayText = document.getElementById('writingArea').value.trim();
     let essayWords = essayText ? essayText.split(/\s+/).length : 0;
-    let advancedTokens = ["mitigation", "unprecedented", "infrastructure", "expenditures", "jurisdictions", "vulnerabilities", "consequently", "nevertheless", "subordination"];
-    let tokenHits = advancedTokens.filter(tok => essayText.toLowerCase().includes(tok)).length;
-    
-    let wBand = 4.5;
-    if(essayWords > 150) wBand = 5.5;
-    if(essayWords >= 250) wBand = 6.5;
-    if(essayWords >= 250 && tokenHits >= 3) wBand = 7.5;
-    if(essayWords >= 250 && tokenHits >= 5) wBand = 8.5;
-    if(essayWords >= 280 && tokenHits >= 7) wBand = 9.0;
+    let wAttempted = essayWords > 0;
 
-    // 4. Speaking Advanced Delivery Estimator
     let speakText = document.getElementById('speakingArea').value.trim();
     let speakWords = speakText ? speakText.split(/\s+/).length : 0;
-    let sBand = 5.0;
-    if(speakWords > 20) sBand = 6.0;
-    if(speakWords > 40) sBand = 7.5;
-    if(speakWords > 60) sBand = 8.5;
-    if(speakText.toLowerCase().includes("infrastructure") || speakText.toLowerCase().includes("governance")) sBand = 9.0;
+    let sAttempted = speakWords > 0;
 
-    // Output Mapping
+    // Reject evaluation processing if all vectors are blank
+    if (!lAttempted && !rAttempted && !wAttempted && !sAttempted) {
+        alert("Action Denied: You cannot evaluate an empty matrix. Please complete at least one section to see your results.");
+        return;
+    }
+
+    // Dynamic array tracker for calculating average
+    let activeModuleBands = [];
+
+    // 1. Listening Processing
+    let scoreListenDisplay = "N/A (Skipped)";
+    if(lAttempted) {
+        let lBand = 4.0 + (lScore * 1.0);
+        activeModuleBands.push(lBand);
+        scoreListenDisplay = lBand.toFixed(1);
+    }
+
+    // 2. Reading Processing
+    let scoreReadDisplay = "N/A (Skipped)";
+    if(rAttempted) {
+        let rBand = 4.0 + (rScore * 1.0);
+        activeModuleBands.push(rBand);
+        scoreReadDisplay = rBand.toFixed(1);
+    }
+
+    // 3. Writing Advanced Syntax Estimator
+    let scoreWriteDisplay = "N/A (Skipped)";
+    if(wAttempted) {
+        let advancedTokens = ["mitigation", "unprecedented", "infrastructure", "expenditures", "jurisdictions", "vulnerabilities", "consequently", "nevertheless", "subordination"];
+        let tokenHits = advancedTokens.filter(tok => essayText.toLowerCase().includes(tok)).length;
+        
+        let wBand = 4.5;
+        if(essayWords > 150) wBand = 5.5;
+        if(essayWords >= 250) wBand = 6.5;
+        if(essayWords >= 250 && tokenHits >= 3) wBand = 7.5;
+        if(essayWords >= 250 && tokenHits >= 5) wBand = 8.5;
+        if(essayWords >= 280 && tokenHits >= 7) wBand = 9.0;
+        
+        activeModuleBands.push(wBand);
+        scoreWriteDisplay = wBand.toFixed(1);
+    }
+
+    // 4. Speaking Advanced Delivery Estimator
+    let scoreSpeakDisplay = "N/A (Skipped)";
+    if(sAttempted) {
+        let sBand = 5.0;
+        if(speakWords > 20) sBand = 6.0;
+        if(speakWords > 40) sBand = 7.5;
+        if(speakWords > 60) sBand = 8.5;
+        if(speakText.toLowerCase().includes("infrastructure") || speakText.toLowerCase().includes("governance")) sBand = 9.0;
+        
+        activeModuleBands.push(sBand);
+        scoreSpeakDisplay = sBand.toFixed(1);
+    }
+
+    // Output Mapping to DOM Elements
     document.getElementById('outName').innerText = document.getElementById('nameInput').value.trim() || "Candidate Unknown";
     document.getElementById('outID').innerText = document.getElementById('idInput').value.trim() || "Unspecified";
     
-    document.getElementById('scoreListen').innerText = lBand.toFixed(1);
-    document.getElementById('scoreRead').innerText = rBand.toFixed(1);
-    document.getElementById('scoreWrite').innerText = wBand.toFixed(1);
-    document.getElementById('scoreSpeak').innerText = sBand.toFixed(1);
+    document.getElementById('scoreListen').innerText = scoreListenDisplay;
+    document.getElementById('scoreRead').innerText = scoreReadDisplay;
+    document.getElementById('scoreWrite').innerText = scoreWriteDisplay;
+    document.getElementById('scoreSpeak').innerText = scoreSpeakDisplay;
     
-    let overallCalc = ((lBand + rBand + wBand + sBand) / 4);
-    // Round to nearest 0.5 as per official IELTS conventions
+    // Dynamic Proportional Score Math
+    let totalSum = activeModuleBands.reduce((sum, score) => sum + score, 0);
+    let overallCalc = totalSum / activeModuleBands.length;
+    
+    // Exact IELTS 0.5 Rounding Protocol
     let roundedOverall = Math.round(overallCalc * 2) / 2;
     document.getElementById('scoreOverall').innerText = roundedOverall.toFixed(1);
 
-    // Render Dashboard Canvas
+    // Render Dashboard Canvas View gracefully
     document.getElementById('resultsDashboard').style.display = "block";
     document.getElementById('resultsDashboard').scrollIntoView({ behavior: 'smooth' });
 }
